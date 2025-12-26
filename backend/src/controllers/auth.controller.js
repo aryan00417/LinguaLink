@@ -39,16 +39,15 @@ export const signup = async (req, res) => {
     });
 
     try {
-       await upsertStreamUser({
-      id: newUser._id.toString(),
-      name: newUser.fullName,
-      image: newUser.profilePic || "",
-    })
-    console.log(`stream user created for ${newUser.fullName}`)
+      await upsertStreamUser({
+        id: newUser._id.toString(),
+        name: newUser.fullName,
+        image: newUser.profilePic || "",
+      });
+      console.log(`stream user created for ${newUser.fullName}`);
     } catch (error) {
-      console.log("error creating stream user")
+      console.log("error creating stream user");
     }
-   
 
     const token = jwt.sign(
       { userId: newUser._id },
@@ -88,13 +87,9 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect)
       return res.status(401).json({ message: "invalid email or password" });
 
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "7d",
+    });
 
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -103,16 +98,72 @@ export const login = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    res.status(200).json({success: true,user})
+    res.status(200).json({ success: true, user });
   } catch (error) {
-    console.log("Error in login controller",error.message);
-    res.status(500).json({message: "Internal server error"})
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("jwt")
-  res.status(200).json({success: true,message: "logout successfull"})
-
+  res.clearCookie("jwt");
+  res.status(200).json({ success: true, message: "logout successfull" });
 };
 
+export const onBoarding = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { fullName, bio, nativeLanguage, learningLanguage, location } =
+      req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const finalFullName = fullName || user.fullName;
+    if (!bio || !nativeLanguage || !learningLanguage || !location) {
+      return res
+        .status(400)
+        .json({
+          message: "all fields are required",
+          missingFields: [
+            !bio && "bio",
+            !nativeLanguage && "nativeLanguage",
+            !learningLanguage && "learningLanguage",
+            !location && "location",
+          ].filter(Boolean)
+        });
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        fullName: finalFullName,
+        bio,
+        nativeLanguage,
+        learningLanguage,
+        location,
+        isOnboarded: true,
+      },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    try {
+      await upsertStreamUser({
+      id: updatedUser._id.toString(),
+      name: updatedUser.fullName,
+      image: updatedUser.profilePic || "",
+    })
+    console.log(`user updated in stream ${updatedUser.fullName}`)
+    } catch (error) {
+      console.log("error in upserting the user")
+    }
+    
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.log("Onboarding error: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
