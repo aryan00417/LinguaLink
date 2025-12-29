@@ -6,10 +6,13 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import CallPage from "./pages/CallPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
+import toast, {Toaster} from "react-hot-toast";
 
 export default function App() {
   return (
     <div className=" h-screen text-5xl "data-theme="coffee">
+
+      <button onClick={()=> toast.success("Hey there")}>toast</button>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -18,9 +21,9 @@ export default function App() {
         <Route path="/call" element={<CallPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
-
-        
       </Routes>
+
+      <Toaster />
 
     </div>
   );
