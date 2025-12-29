@@ -8,8 +8,8 @@ import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { axiosInstance } from "./lib/axios.js";
+import PageLoader from "./components/pageLoader.jsx";
 
 export default function App() {
   const {
@@ -26,6 +26,7 @@ export default function App() {
   });
 
   const authUser = authData?.user;
+  if(isLoading) return <PageLoader />
 
   return (
     <div className=" h-screen text-5xl " data-theme="coffee">
