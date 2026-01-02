@@ -1,7 +1,7 @@
 import { useState } from "react";
-import useAuthUser from "../hooks/useAuthuser";
+import useAuthUser from "../hooks/useAuthUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { completeOnBoarding } from "../lib/api";
 import {
   GpuIcon,
@@ -25,7 +25,7 @@ const OnboardingPage = () => {
     profilePic: authUser?.profilePic || "",
   });
 
-  const { mutate: onboardingMutation, isPending } = useMutation({
+  const { mutate: onboardingMutation, isLoading } = useMutation({
     mutationFn: completeOnBoarding,
     onSuccess: () => {
       toast.success("Profile completed", {
@@ -39,7 +39,14 @@ const OnboardingPage = () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong", {
+      style: {
+        fontSize: "14px",
+        padding: "8px 12px",
+        minWidth: "unset",
+        maxWidth: "260px",
+      },
+    });
     },
   });
 
@@ -210,10 +217,10 @@ const OnboardingPage = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isPending}
+                disabled={isLoading}
                 className="btn btn-primary w-full btn-sm mt-2"
               >
-                {!isPending ? (
+                {!isLoading ? (
                   <>
                     <GpuIcon className="size-4 mr-2" />
                     Complete Onboarding

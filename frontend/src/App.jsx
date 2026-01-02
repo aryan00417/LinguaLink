@@ -8,14 +8,15 @@ import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import { Toaster } from "react-hot-toast";  
 import PageLoader from "./components/pageLoader.jsx";
-import useAuthUser from "./hooks/useAuthuser.js";
+import useAuthUser from "./hooks/useAuthUser.js";
 
 
 export default function App() {
   const { isLoading, authUser } = useAuthUser();
 
   const isAuthenticated = Boolean(authUser)
-  const isOnBoarded = authUser?.isOnBoarded
+  const isOnboarded = Boolean(authUser?.isOnboarded)
+
 
   if (isLoading) return <PageLoader />;
 
@@ -24,7 +25,7 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated && isOnBoarded ? (
+          element={isAuthenticated && isOnboarded ? (
             <HomePage />
           ) : (<Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />)}
         />
@@ -48,9 +49,19 @@ export default function App() {
           path="/chat"
           element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
         />
-        <Route
+       <Route
           path="/onboarding"
-          element={isAuthenticated ? <OnboardingPage /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? (
+              !isOnboarded ? (
+                <OnboardingPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
       </Routes>
 
