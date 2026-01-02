@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { GpuIcon } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signup } from "../lib/api";
+import { toast } from "react-hot-toast";
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [signupData, setSignupData] = useState({
     fullName: "",
     email: "",
@@ -15,12 +17,16 @@ const SignUpPage = () => {
   const queryClient = useQueryClient();
   const {
     mutate: signupMutation,
-    isPending,
+    isLoading,
     error,
   } = useMutation({
     mutationFn: signup,
 
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      toast.success("Account created");
+      navigate("/onboarding");
+    },
   });
   const handleSignup = (e) => {
     e.preventDefault();
@@ -156,7 +162,7 @@ const SignUpPage = () => {
                 </div>
 
                 <button className="btn btn-primary w-full" type="submit">
-                  {isPending ? (
+                  {isLoading ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
                       Loading...
