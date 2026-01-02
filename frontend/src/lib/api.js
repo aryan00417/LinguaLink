@@ -9,3 +9,7 @@ export const getAuthUser = async () => {
   const res = await axiosInstance.get("/auth/me");
   return res.data;
 };
+export const completeOnBoarding = async(userData)=>{
+  const res = await axiosInstance.post("/auth/onBoarding",userData);
+  return res.data;
+}
