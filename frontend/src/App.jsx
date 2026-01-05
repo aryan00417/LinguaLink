@@ -21,7 +21,7 @@ export default function App() {
   const {theme} = useThemeStore()
 
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading ) return <PageLoader />;
 
   return (
     <div className=" h-screen text-5xl " data-theme={theme}>
