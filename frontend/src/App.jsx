@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 import PageLoader from "./components/pageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
 import Layout from "./components/layout.jsx";
+import { useThemeStore } from "./store/useThemeStore.js";
 
 
 export default function App() {
@@ -17,12 +18,13 @@ export default function App() {
 
   const isAuthenticated = Boolean(authUser)
   const isOnboarded = Boolean(authUser?.isOnboarded)
+  const {theme} = useThemeStore()
 
 
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className=" h-screen text-5xl " data-theme="luxury">
+    <div className=" h-screen text-5xl " data-theme={theme}>
       <Routes>
         <Route
           path="/"
