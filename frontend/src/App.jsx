@@ -9,6 +9,7 @@ import OnboardingPage from "./pages/OnboardingPage.jsx";
 import { Toaster } from "react-hot-toast";  
 import PageLoader from "./components/pageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
+import Layout from "./components/layout.jsx";
 
 
 export default function App() {
@@ -21,12 +22,14 @@ export default function App() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className=" h-screen text-5xl " data-theme="coffee">
+    <div className=" h-screen text-5xl " data-theme="luxury">
       <Routes>
         <Route
           path="/"
           element={isAuthenticated && isOnboarded ? (
-            <HomePage />
+           <Layout showSidebar={true}>
+             <HomePage />
+           </Layout>
           ) : (<Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />)}
         />
         <Route
