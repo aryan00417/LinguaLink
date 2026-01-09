@@ -1,5 +1,5 @@
 import React from 'react'
-import useAuthUser from '../hooks/useAuthUser'
+import useAuthUser from '../hooks/useAuthuser'
 import { Link, useLocation } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { logout } from '../lib/api';

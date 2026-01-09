@@ -1,5 +1,5 @@
 import { BellIcon, GpuIcon, HomeIcon, UsersIcon } from 'lucide-react';
-import useAuthUser from '../hooks/useAuthUser'
+import useAuthUser from '../hooks/useAuthuser'
 import { Link, useLocation } from 'react-router';
 
 const Sidebar = () => {

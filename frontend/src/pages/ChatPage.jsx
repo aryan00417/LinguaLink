@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router"
-import useAuthUser from "../hooks/useAuthUser";
+import useAuthUser from "../hooks/useAuthuser";
 import { useQuery } from "@tanstack/react-query";
 import ChatLoader from "../components/ChatLoader";
 import {
