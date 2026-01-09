@@ -24,7 +24,14 @@ const SignUpPage = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
-      toast.success("Account created");
+      toast.success("Account created", {
+      style: {
+        fontSize: "14px",
+        padding: "8px 12px",
+        minWidth: "unset",
+        maxWidth: "260px",
+      },
+    });
       navigate("/onboarding");
     },
   });
