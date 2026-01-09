@@ -11,6 +11,28 @@ import {
   CameraIcon,
 } from "lucide-react";
 import { LANGUAGES } from "../constants";
+const characters = [
+  "Eden",
+  "Valentina",
+  "Brian",
+  "Jude",
+  "George",
+  "Luis",
+  "Adrian",
+  "Chase",
+  "Avery",
+  "Jade",
+  "Aidan",
+  "Eliza",
+  "Jocelyn",
+  "Easton",
+  "Brooklynn",
+  "Mason",
+  "Mackenzie",
+  "Destiny",
+  "Sophia",
+  "Liliana"
+];
 
 const OnboardingPage = () => {
   const { authUser } = useAuthUser();
@@ -56,8 +78,9 @@ const OnboardingPage = () => {
   };
 
   const handleRandomAvatar = () => {
-    const idx = Math.floor(Math.random() * 100) + 1;
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+    const seed = encodeURIComponent(randomCharacter);
+    const randomAvatar = `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
     setFormState({ ...formState, profilePic: randomAvatar });
     toast.success("Avatar updated", {
       style: {

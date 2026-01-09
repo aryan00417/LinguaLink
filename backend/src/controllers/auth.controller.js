@@ -2,6 +2,29 @@ import { upsertStreamUser } from "../lib/stream.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
+const characters = [
+  "Eden",
+  "Valentina",
+  "Brian",
+  "Jude",
+  "George",
+  "Luis",
+  "Adrian",
+  "Chase",
+  "Avery",
+  "Jade",
+  "Aidan",
+  "Eliza",
+  "Jocelyn",
+  "Easton",
+  "Brooklynn",
+  "Mason",
+  "Mackenzie",
+  "Destiny",
+  "Sophia",
+  "Liliana"
+];
+
 export const signup = async (req, res) => {
   const { email, password, fullName } = req.body;
 
@@ -28,8 +51,9 @@ export const signup = async (req, res) => {
         .json({ message: "Email already exsits, please use a different one" });
     }
 
-    const idx = Math.floor(Math.random() * 100) + 1; //gives a number from [1,100]
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+    const seed = encodeURIComponent(randomCharacter);
+    const randomAvatar = `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
 
     const newUser = await User.create({
       email,
@@ -113,7 +137,7 @@ export const logout = (req, res) => {
 export const onBoarding = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { fullName, bio, nativeLanguage, learningLanguage, location } =
+    const { fullName, bio, nativeLanguage, learningLanguage, location, profilePic } =
       req.body;
     const user = await User.findById(userId);
     if (!user) {
@@ -141,6 +165,7 @@ export const onBoarding = async (req, res) => {
         nativeLanguage,
         learningLanguage,
         location,
+        profilePic: profilePic || user.profilePic,
         isOnboarded: true,
       },
       { new: true }

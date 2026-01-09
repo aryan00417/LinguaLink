@@ -42,3 +42,11 @@
 .str-chat__message-input {
   border-top: 1px solid #ddd;
 }
+
+.str-chat__typing-indicator {
+  font-size: 12px !important;
+}
+
+.str-chat__typing-indicator__text {
+  font-size: 12px !important;
+}
