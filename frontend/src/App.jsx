@@ -7,10 +7,10 @@ import CallPage from "./pages/CallPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import { Toaster } from "react-hot-toast";
-import PageLoader from "./components/pageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
 import Layout from "./components/layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
+import PageLoader from "./components/PageLoader.jsx";
 
 export default function App() {
   const { isLoading, authUser } = useAuthUser();
@@ -69,16 +69,27 @@ export default function App() {
           }
         />
         <Route
-          path="/call"
-          element={isAuthenticated ? <CallPage /> : <Navigate to="/login" />}
+          path="/call/:id"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <CallPage />
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
         />
+
         <Route
           path="/chat/:id"
-          element={isAuthenticated && isOnboarded ? (
-            <Layout showSidebar={false}>
-              <ChatPage />
-            </Layout>
-        ) : (<Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />)}
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={false}>
+                <ChatPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
         />
         <Route
           path="/onboarding"
