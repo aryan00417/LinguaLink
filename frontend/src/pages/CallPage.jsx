@@ -64,7 +64,16 @@ const CallPage = () => {
         setCall(callInstance);
       } catch (error) {
         console.error("Error joining call:", error);
-        toast.error("Could not join the call. Please try again.");
+        
+      toast.error("Could not join the call. Please try again", {
+              style: {
+                fontSize: "14px",
+                padding: "8px 12px",
+                minWidth: "unset",
+                maxWidth: "260px",
+              },
+            });
+       
       } finally {
         setIsConnecting(false);
       }

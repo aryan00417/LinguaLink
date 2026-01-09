@@ -67,7 +67,15 @@ const ChatPage = () => {
         setChannel(currChannel);
       } catch (error) {
         console.error("Error initializing chat:", error);
-        toast.error("Could not connect to chat. Please try again.");
+        toast.error("Could not connect to chat. Please try again.", {
+              style: {
+                fontSize: "14px",
+                padding: "8px 12px",
+                minWidth: "unset",
+                maxWidth: "260px",
+              },
+            });
+       
       } finally {
         setLoading(false);
       }
@@ -83,7 +91,17 @@ const ChatPage = () => {
         text: `I've started a video call. Join me here: ${callUrl}`,
       });
 
-      toast.success("Video call link sent successfully!");
+      toast.success("Video call link sent successfully!", {
+              style: {
+                fontSize: "14px",
+                padding: "8px 12px",
+                minWidth: "unset",
+                maxWidth: "260px",
+              },
+            });
+
+     
+      
     }
   };
   if (loading || !chatClient || !channel) return <ChatLoader />;
