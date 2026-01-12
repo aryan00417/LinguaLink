@@ -23,6 +23,9 @@ app.use(
     credentials: true,
   })
 );
+app.get("/", (req, res) => {
+  res.send("LinguaLink backend is running 🚀");
+});
 
 
 app.use(express.json())
