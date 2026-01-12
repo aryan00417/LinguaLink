@@ -31,13 +31,13 @@ app.use("/api/auth",authRoute)
 app.use("/api/users",usersRoute)
 app.use("/api/chat",chatRoute)
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+//   });
+// }
 
 app.listen(PORT,()=>{
   console.log(`the server is running on port ${PORT}`);
