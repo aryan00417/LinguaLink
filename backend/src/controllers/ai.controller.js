@@ -53,13 +53,13 @@ export const handleStreamWebhook = async (req, res) => {
       content: msg.text,
     }));
 
-    //COMMAND DETECTION
-    let systemPrompt =
-      "You are LinguaLink AI assistant. Keep replies short, friendly and human-like.";
+    // ⭐ COMMAND DETECTION
+let systemPrompt =
+  "You are LinguaLink AI assistant. Keep replies short and friendly.";
 
-    //  TRANSLATE MODE
-    if (lowerText.includes("translate:")) {
-      systemPrompt = `
+// 🌍 TRANSLATE MODE
+if (lowerText.includes("translate:")) {
+  systemPrompt = `
 You are a professional translator.
 Translate the user's text into the requested language.
 Reply ONLY with the translated sentence.
@@ -67,17 +67,30 @@ Example:
 German: Hallo
 French: Bonjour
 `;
-    }
+}
 
-    //  SUMMARY MODE
-    else if (lowerText.includes("summarize")) {
-      systemPrompt = `
+// 🧠 SUMMARY MODE
+else if (lowerText.includes("summarize")) {
+  systemPrompt = `
 You are an AI meeting assistant.
 Summarize the conversation into short bullet points.
 Highlight key topics, decisions and important info.
 Keep summary under 6 bullet points.
 `;
-    }
+}
+
+// 💡 SMART REPLY MODE
+else if (lowerText.includes("reply")) {
+  systemPrompt = `
+You suggest a short, friendly reply to the LAST message in the chat.
+Return only the suggested reply text.
+Keep it natural and human.
+Example:
+"Sure, that works!"
+"Sounds good 👍"
+"Yes, see you then!"
+`;
+}
 
     // Add system prompt
     messagesForAI.unshift({
