@@ -10,7 +10,12 @@ const streamClient = StreamChat.getInstance(
   process.env.STREAM_API_KEY,
   process.env.STREAM_API_SECRET
 );
-
+setInterval(() => {
+  if (global.processedMessages) {
+    global.processedMessages.clear();
+    console.log("Cleared processed message cache");
+  }
+}, 10 * 60 * 1000);
 export const handleStreamWebhook = async (req, res) => {
   try {
     const event = req.body;
