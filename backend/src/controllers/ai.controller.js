@@ -46,27 +46,36 @@ export const handleStreamWebhook = async (req, res) => {
 
     // Fetch last messages for context
     const channel = streamClient.channel("messaging", channelId);
-    const state = await channel.query({ messages: { limit: 20 } });
+    const state = await channel.query({ messages: { limit: 50 } });
 
     const messagesForAI = state.messages.map((msg) => ({
       role: "user",
       content: msg.text,
     }));
 
-    // ⭐ COMMAND DETECTION
+    //COMMAND DETECTION
     let systemPrompt =
       "You are LinguaLink AI assistant. Keep replies short, friendly and human-like.";
 
-    // 🌍 TRANSLATION MODE
+    //  TRANSLATE MODE
     if (lowerText.includes("translate:")) {
       systemPrompt = `
 You are a professional translator.
 Translate the user's text into the requested language.
 Reply ONLY with the translated sentence.
-Keep it short.
 Example:
 German: Hallo
 French: Bonjour
+`;
+    }
+
+    //  SUMMARY MODE
+    else if (lowerText.includes("summarize")) {
+      systemPrompt = `
+You are an AI meeting assistant.
+Summarize the conversation into short bullet points.
+Highlight key topics, decisions and important info.
+Keep summary under 6 bullet points.
 `;
     }
 
