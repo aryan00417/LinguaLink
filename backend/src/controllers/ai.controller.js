@@ -3,7 +3,7 @@ import { StreamChat } from "stream-chat";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1", 
+  baseURL: "https://openrouter.ai/api/v1",
 });
 
 const streamClient = StreamChat.getInstance(
@@ -14,23 +14,19 @@ const streamClient = StreamChat.getInstance(
 export const handleStreamWebhook = async (req, res) => {
   try {
     const event = req.body;
-    //Ignore bot's own messages (prevent infinite loop)
-if (event.user?.id === "ai") {
-  return res.status(200).json({ ok: true });
-}
 
-//Prevent duplicate replies using message ID
-const messageId = event.message?.id;
+    // 🚨 Ignore bot's own messages (prevent loop)
+    if (event.user?.id === "ai") {
+      return res.status(200).json({ ok: true });
+    }
 
-if (!global.processedMessages) {
-  global.processedMessages = new Set();
-}
-
-if (global.processedMessages.has(messageId)) {
-  return res.status(200).json({ ok: true });
-}
-
-global.processedMessages.add(messageId);
+    // 🚨 Prevent duplicate replies
+    const messageId = event.message?.id;
+    if (!global.processedMessages) global.processedMessages = new Set();
+    if (global.processedMessages.has(messageId)) {
+      return res.status(200).json({ ok: true });
+    }
+    global.processedMessages.add(messageId);
 
     // Only listen to new messages
     if (event.type !== "message.new") {
@@ -38,35 +34,49 @@ global.processedMessages.add(messageId);
     }
 
     const messageText = event.message.text;
+    const lowerText = messageText.toLowerCase();
     const channelId = event.cid.split(":")[1];
 
     // Trigger only if bot mentioned
-    if (!messageText.toLowerCase().includes("@ai")) {
+    if (!lowerText.includes("@ai")) {
       return res.status(200).json({ ok: true });
     }
 
     console.log("AI triggered in channel:", channelId);
 
-    // Fetch last messages from Stream
+    // Fetch last messages for context
     const channel = streamClient.channel("messaging", channelId);
-
-    const state = await channel.query({
-      messages: { limit: 20 },
-    });
+    const state = await channel.query({ messages: { limit: 20 } });
 
     const messagesForAI = state.messages.map((msg) => ({
       role: "user",
       content: msg.text,
     }));
 
-    // System prompt (your AI personality)
+    // ⭐ COMMAND DETECTION
+    let systemPrompt =
+      "You are LinguaLink AI assistant. Keep replies short, friendly and human-like.";
+
+    // 🌍 TRANSLATION MODE
+    if (lowerText.includes("translate:")) {
+      systemPrompt = `
+You are a professional translator.
+Translate the user's text into the requested language.
+Reply ONLY with the translated sentence.
+Keep it short.
+Example:
+German: Hallo
+French: Bonjour
+`;
+    }
+
+    // Add system prompt
     messagesForAI.unshift({
       role: "system",
-      content:
-        "You are LinguaLink AI assistant. You help users chat, translate and communicate better. Keep replies short, friendly and human-like.",
+      content: systemPrompt,
     });
 
-    // 🔥 Ask OpenRouter (GPT model)
+    // Ask OpenRouter AI
     const completion = await openai.chat.completions.create({
       model: "openai/gpt-4o-mini",
       messages: messagesForAI,
@@ -74,7 +84,7 @@ global.processedMessages.add(messageId);
 
     const aiReply = completion.choices[0].message.content;
 
-    // Send reply as bot in Stream chat
+    // Send AI reply into Stream chat
     await channel.sendMessage({
       text: aiReply,
       user_id: "ai",
