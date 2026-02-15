@@ -4,7 +4,6 @@ import authRoute from "./routes/auth.route.js"
 import usersRoute from "./routes/user.route.js"
 import chatRoute from "./routes/chat.route.js"
 import aiRoute from "./routes/ai.route.js"
-import setupRoute from "./routes/setup.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser"
 import cors from "cors"
@@ -38,7 +37,7 @@ app.use("/api/auth",authRoute)
 app.use("/api/users",usersRoute)
 app.use("/api/chat",chatRoute)
 app.use("/api/ai", aiRoute);
-app.use("/api/setup", setupRoute);
+
 
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static(path.join(__dirname, "../frontend/dist")));
