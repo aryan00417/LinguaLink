@@ -19,6 +19,7 @@ import { StreamChat } from "stream-chat";
 import CallButton from "../components/CallButton";
 
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
+
 const ChatPage = () => {
   console.log("STREAM_API_KEY:", import.meta.env.VITE_STREAM_API_KEY);
   const { id: targetUserId } = useParams();
@@ -32,8 +33,22 @@ const ChatPage = () => {
   const { data: tokenData } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
-    enabled: !!authUser, // this will run only when authUser is available
+    enabled: !!authUser,
   });
+
+  // Handle mobile viewport height when keyboard appears
+  useEffect(() => {
+    const setViewportHeight = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+
+    return () => window.removeEventListener('resize', setViewportHeight);
+  }, []);
+
   useEffect(() => {
     const initChat = async () => {
       if (!tokenData?.token || !authUser) return;
@@ -52,12 +67,7 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        //
         const channelId = [authUser._id, targetUserId].sort().join("-");
-
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
@@ -84,6 +94,7 @@ const ChatPage = () => {
 
     initChat();
   }, [tokenData, authUser, targetUserId]);
+
   const handleVideoCall = () => {
     if (channel) {
       const callUrl = `${window.location.origin}/call/${channel.id}`;
@@ -102,6 +113,7 @@ const ChatPage = () => {
       });
     }
   };
+
   useEffect(() => {
     if (!authUser?._id) return;
 
@@ -112,61 +124,61 @@ const ChatPage = () => {
       setTimeout(() => setShowAIPopup(true), 1500);
     }
   }, [authUser]);
+
   if (loading || !chatClient || !channel) return <ChatLoader />;
+
   return (
-    
-  <div className="h-[100dvh] w-full overflow-hidden -mt-14">
-    <Chat client={chatClient}>
-      <Channel channel={channel}>
-        <div className="h-full w-full relative">
-          <CallButton handleVideoCall={handleVideoCall} />
+    <div className="w-full overflow-hidden -mt-14" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+      <Chat client={chatClient}>
+        <Channel channel={channel}>
+          <div className="h-full w-full relative">
+            <CallButton handleVideoCall={handleVideoCall} />
 
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageInput
-              focus
-              additionalTextareaProps={{
-                placeholder:
-                  "Type a message… try @ai translate, @ai summarize or @ai reply ✨",
-              }}
-            />
-          </Window>
-        </div>
-
-        <Thread />
-      </Channel>
-    </Chat>
-
-    {showAIPopup && (
-      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-xl max-w-sm text-center shadow-xl">
-          <h2 className="text-xl font-semibold mb-2">Meet Lingua AI 🤖</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            You can chat with AI inside conversations!
-          </p>
-
-          <div className="text-left text-sm bg-gray-100 p-3 rounded mb-4">
-            <p>@ai translate: hello → spanish</p>
-            <p>@ai summarize</p>
-            <p>@ai reply</p>
+            <Window>
+              <ChannelHeader />
+              <MessageList />
+              <MessageInput
+                focus
+                additionalTextareaProps={{
+                  placeholder:
+                    "Type a message… try @ai translate, @ai summarize or @ai reply ✨",
+                }}
+              />
+            </Window>
           </div>
 
-          <button
-            onClick={() => {
-              localStorage.setItem(`seenAIIntro_${authUser._id}`, "true");
-              setShowAIPopup(false);
-            }}
-            className="bg-blue-500 text-white text-sm px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Got it 👍
-          </button>
+          <Thread />
+        </Channel>
+      </Chat>
+
+      {showAIPopup && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl max-w-sm mx-4 text-center shadow-xl">
+            <h2 className="text-xl font-semibold mb-2">Meet Lingua AI 🤖</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              You can chat with AI inside conversations!
+            </p>
+
+            <div className="text-left text-sm bg-gray-100 p-3 rounded mb-4">
+              <p>@ai translate: hello → spanish</p>
+              <p>@ai summarize</p>
+              <p>@ai reply</p>
+            </div>
+
+            <button
+              onClick={() => {
+                localStorage.setItem(`seenAIIntro_${authUser._id}`, "true");
+                setShowAIPopup(false);
+              }}
+              className="bg-blue-500 text-white text-sm px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Got it 👍
+            </button>
+          </div>
         </div>
-      </div>
-    )}
-  </div>
-);
- 
+      )}
+    </div>
+  );
 };
 
 export default ChatPage;
