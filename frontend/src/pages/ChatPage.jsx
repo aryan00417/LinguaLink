@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router"
+import { useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthuser";
 import { useQuery } from "@tanstack/react-query";
 import ChatLoader from "../components/ChatLoader";
@@ -12,6 +12,7 @@ import {
   Thread,
   Window,
 } from "stream-chat-react";
+
 import toast from "react-hot-toast";
 import { getStreamToken } from "../lib/api";
 import { StreamChat } from "stream-chat";
@@ -20,10 +21,11 @@ import CallButton from "../components/CallButton";
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 const ChatPage = () => {
   console.log("STREAM_API_KEY:", import.meta.env.VITE_STREAM_API_KEY);
-  const {id: targetUserId} = useParams();
+  const { id: targetUserId } = useParams();
   const [chatClient, setChatClient] = useState(null);
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAIPopup, setShowAIPopup] = useState(false);
 
   const { authUser } = useAuthUser();
 
@@ -32,7 +34,7 @@ const ChatPage = () => {
     queryFn: getStreamToken,
     enabled: !!authUser, // this will run only when authUser is available
   });
-   useEffect(() => {
+  useEffect(() => {
     const initChat = async () => {
       if (!tokenData?.token || !authUser) return;
 
@@ -68,14 +70,13 @@ const ChatPage = () => {
       } catch (error) {
         console.error("Error initializing chat:", error);
         toast.error("Could not connect to chat. Please try again.", {
-              style: {
-                fontSize: "14px",
-                padding: "8px 12px",
-                minWidth: "unset",
-                maxWidth: "260px",
-              },
-            });
-       
+          style: {
+            fontSize: "14px",
+            padding: "8px 12px",
+            minWidth: "unset",
+            maxWidth: "260px",
+          },
+        });
       } finally {
         setLoading(false);
       }
@@ -92,18 +93,25 @@ const ChatPage = () => {
       });
 
       toast.success("Video call link sent successfully!", {
-              style: {
-                fontSize: "14px",
-                padding: "8px 12px",
-                minWidth: "unset",
-                maxWidth: "260px",
-              },
-            });
-
-     
-      
+        style: {
+          fontSize: "14px",
+          padding: "8px 12px",
+          minWidth: "unset",
+          maxWidth: "260px",
+        },
+      });
     }
   };
+ useEffect(() => {
+  if (!authUser?._id) return;
+
+  const key = `seenAIIntro_${authUser._id}`;
+  const seen = localStorage.getItem(key);
+
+  if (!seen) {
+    setTimeout(() => setShowAIPopup(true), 1500);
+  }
+}, [authUser]);
   if (loading || !chatClient || !channel) return <ChatLoader />;
   return (
     <div className="h-[93vh]">
@@ -114,14 +122,46 @@ const ChatPage = () => {
             <Window>
               <ChannelHeader />
               <MessageList />
-              <MessageInput focus />
+              <MessageInput
+                focus
+                additionalTextareaProps={{
+                  placeholder:
+                    "Type a message… try @ai, @aitranslate, @ai summarize or @ai reply ✨",
+                }}
+              />
             </Window>
           </div>
           <Thread />
         </Channel>
       </Chat>
-    </div>
-  )
-}
+      {showAIPopup && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-xl max-w-sm text-center shadow-xl">
+      <h2 className="text-xl font-semibold mb-2">Meet Lingua AI 🤖</h2>
+      <p className="text-sm text-gray-600 mb-4">
+        You can chat with AI inside conversations!
+      </p>
 
-export default ChatPage
+      <div className="text-left text-sm bg-gray-100 p-3 rounded mb-4">
+        <p>@ai translate: hello → spanish</p>
+        <p>@ai summarize</p>
+        <p>@ai reply</p>
+      </div>
+
+      <button
+        onClick={() => {
+          localStorage.setItem(`seenAIIntro_${authUser._id}`, "true");
+          setShowAIPopup(false);
+        }}
+        className="bg-blue-500 text-white text-sm px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Got it 👍
+      </button>
+    </div>
+  </div>
+)}
+    </div>
+  );
+};
+
+export default ChatPage;
